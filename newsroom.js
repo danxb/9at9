@@ -7,14 +7,19 @@ const mysql = require("mysql2/promise");
 const parser = new RSSParser();
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
+// Helper to clean CDATA
+function cleanCDATA(str) {
+    if (!str) return "";
+    return str.replace(/^<!\[CDATA\[/, "").replace(/\]\]>$/, "").trim();
+}
+
 async function summarizeArticle(article) {
-    // SCRAPE ARTICLE TEXT
     const browser = await puppeteer.launch({ headless: true });
     const page = await browser.newPage();
     await page.goto(article.link, { waitUntil: "load" });
 
     const articleText = await page.evaluate(() => {
-        const container = document.querySelector("article, #main-content");
+        const container = document.querySelector(".article, .sdc-article-body, #main-content");
         if (!container) return "";
         return Array.from(container.querySelectorAll("p"))
             .map(el => el.innerText)
@@ -23,7 +28,8 @@ async function summarizeArticle(article) {
 
     await browser.close();
 
-    // GPT SUMMARY
+    if (!articleText.trim()) return null; // skip empty text
+
     const completion = await openai.chat.completions.create({
         model: "gpt-4.1",
         messages: [
@@ -47,16 +53,22 @@ ${articleText}
     let content = completion.choices[0].message.content;
     content = content.replace(/```json\s*|```/g, "").trim();
 
-    const data = JSON.parse(content);
-    return { headline: data.headline, summary: data.summary };
+    try {
+        const data = JSON.parse(content);
+        return { headline: data.headline, summary: data.summary };
+    } catch (err) {
+        console.error("GPT returned invalid JSON:", content);
+        return null;
+    }
 }
 
 async function run() {
-    // 1. RSS
-    const feed = await parser.parseURL("https://feeds.bbci.co.uk/news/rss.xml");
-    const topArticles = feed.items.slice(0, 3); // top 3 stories
+    const feeds = [
+        { source: "BBC", category: "News", rss: "https://feeds.bbci.co.uk/news/rss.xml" },
+        { source: "Sky Sports", category: "Sport", rss: "https://www.skysports.com/rss/12040", filterLive: true },
+        { source: "Metro", category: "Entertainment", rss: "https://metro.co.uk/entertainment/showbiz/feed" },
+    ];
 
-    // 2. DB connection (open once)
     const db = await mysql.createConnection({
         host: process.env.DB_HOST,
         port: process.env.DB_PORT,
@@ -65,29 +77,50 @@ async function run() {
         database: process.env.DB_NAME
     });
 
-    for (const article of topArticles) {
+    for (const feedInfo of feeds) {
         try {
-            const { headline, summary } = await summarizeArticle(article);
+            const feed = await parser.parseURL(feedInfo.rss);
+            let articles = feed.items;
 
-            console.log("URL:", article.link);
-            console.log("Headline:", headline);
-            console.log("Summary:", summary);
-            console.log("--------------------------------------------------");
+            // Clean CDATA for all fields we use
+            articles = articles.map(item => ({
+                ...item,
+                title: cleanCDATA(item.title),
+                link: cleanCDATA(item.link),
+                description: cleanCDATA(item.description),
+            }));
 
-            // INSERT INTO MYSQL
-            const articleDate = new Date(article.pubDate);
-            const source = "BBC";
-            const category = "News";
-            const url = article.link;
+            // Filter out “live” articles if needed
+            if (feedInfo.filterLive) {
+                articles = articles.filter(item => !/live/i.test(item.title));
+                articles = articles.filter(item => !/watch/i.test(item.link));
+            }
 
-            await db.execute(
-                "INSERT INTO articles (source, category, url, headline, summary, updated) VALUES (?, ?, ?, ?, ?, ?)",
-                [source, category, url, headline, summary, articleDate]
-            );
+            const topArticles = articles.slice(0, 3);
 
-            console.log("Saved to DB!");
+            for (const article of topArticles) {
+                try {
+                    const result = await summarizeArticle(article);
+                    if (!result) continue;
+
+                    console.log(`[${feedInfo.category}] URL:`, article.link);
+                    console.log("Headline:", result.headline);
+                    console.log("Summary:", result.summary);
+                    console.log("--------------------------------------------------");
+
+                    const articleDate = new Date(article.pubDate);
+                    await db.execute(
+                        "INSERT INTO articles (source, category, url, headline, summary, updated) VALUES (?, ?, ?, ?, ?, ?)",
+                        [feedInfo.source, feedInfo.category, article.link, result.headline, result.summary, articleDate]
+                    );
+
+                    console.log("Saved to DB!");
+                } catch (err) {
+                    console.error("Error processing article:", article.link, err);
+                }
+            }
         } catch (err) {
-            console.error("Error processing article:", article.link, err);
+            console.error("Error fetching feed:", feedInfo.rss, err);
         }
     }
 
