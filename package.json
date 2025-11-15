@@ -1,0 +1,8 @@
+{
+  "dependencies": {
+    "mysql2": "^3.15.3",
+    "openai": "^6.9.0",
+    "puppeteer": "^24.30.0",
+    "rss-parser": "^3.13.0"
+  }
+}
