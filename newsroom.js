@@ -7,15 +7,26 @@ const mysql = require("mysql2/promise");
 const parser = new RSSParser();
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
-// Helper to clean CDATA
+// --- Clean CDATA ---
 function cleanCDATA(str) {
     if (!str) return "";
     return str.replace(/^<!\[CDATA\[/, "").replace(/\]\]>$/, "").trim();
 }
 
+// --- Check if article URL already exists ---
+async function articleExists(db, url) {
+    const [rows] = await db.execute(
+        "SELECT 1 FROM articles WHERE url = ? LIMIT 1",
+        [url]
+    );
+    return rows.length > 0;
+}
+
+// --- Summarise article using OpenAI ---
 async function summarizeArticle(article) {
     const browser = await puppeteer.launch({ headless: true });
     const page = await browser.newPage();
+
     await page.goto(article.link, { waitUntil: "load" });
 
     const articleText = await page.evaluate(() => {
@@ -28,7 +39,7 @@ async function summarizeArticle(article) {
 
     await browser.close();
 
-    if (!articleText.trim()) return null; // skip empty text
+    if (!articleText.trim()) return null;
 
     const completion = await openai.chat.completions.create({
         model: "gpt-4.1",
@@ -36,7 +47,7 @@ async function summarizeArticle(article) {
             {
                 role: "user",
                 content: `
-Return ONLY valid JSON, no code fences, in this format:
+Return ONLY valid JSON:
 
 {
   "headline": "<1-3 word snappy headline>",
@@ -62,6 +73,7 @@ ${articleText}
     }
 }
 
+// --- MAIN RUN ---
 async function run() {
     const feeds = [
         { source: "BBC", category: "News", rss: "https://feeds.bbci.co.uk/news/rss.xml" },
@@ -82,7 +94,7 @@ async function run() {
             const feed = await parser.parseURL(feedInfo.rss);
             let articles = feed.items;
 
-            // Clean CDATA for all fields we use
+            // Clean
             articles = articles.map(item => ({
                 ...item,
                 title: cleanCDATA(item.title),
@@ -90,35 +102,48 @@ async function run() {
                 description: cleanCDATA(item.description),
             }));
 
-            // Filter out “live” articles if needed
+            // Apply filters
             if (feedInfo.filterLive) {
                 articles = articles.filter(item => !/live/i.test(item.title));
                 articles = articles.filter(item => !/watch/i.test(item.link));
             }
 
-            const topArticles = articles.slice(0, 3);
+            // --- Pull a few extra to avoid duplicates (6 instead of 3) ---
+            const candidateArticles = articles.slice(0, 6);
 
-            for (const article of topArticles) {
-                try {
-                    const result = await summarizeArticle(article);
-                    if (!result) continue;
+            let added = 0;
+            for (const article of candidateArticles) {
+                if (added >= 3) break;
 
-                    console.log(`[${feedInfo.category}] URL:`, article.link);
-                    console.log("Headline:", result.headline);
-                    console.log("Summary:", result.summary);
-                    console.log("--------------------------------------------------");
+                // Skip duplicates BEFORE OpenAI call (saves £££)
+                if (await articleExists(db, article.link)) {
+                    console.log("Already exists, skipping:", article.link);
+                    continue;
+                }
 
-                    const articleDate = new Date(article.pubDate);
-                    await db.execute(
-                        "INSERT INTO articles (source, category, url, headline, summary, updated) VALUES (?, ?, ?, ?, ?, ?)",
-                        [feedInfo.source, feedInfo.category, article.link, result.headline, result.summary, articleDate]
-                    );
+                // Summarise
+                const result = await summarizeArticle(article);
+                if (!result) continue;
 
-                    console.log("Saved to DB!");
-                } catch (err) {
-                    console.error("Error processing article:", article.link, err);
+                console.log(`[${feedInfo.category}] URL:`, article.link);
+                console.log("Headline:", result.headline);
+
+                const articleDate = new Date(article.pubDate);
+
+                // Insert
+                const [res] = await db.execute(
+                    "INSERT INTO articles (source, category, url, headline, summary, updated) VALUES (?, ?, ?, ?, ?, ?)",
+                    [feedInfo.source, feedInfo.category, article.link, result.headline, result.summary, articleDate]
+                );
+
+                if (res.affectedRows > 0) {
+                    console.log("Saved!");
+                    added++;
                 }
             }
+
+            console.log(`Finished ${feedInfo.source}: added ${added} articles.`);
+
         } catch (err) {
             console.error("Error fetching feed:", feedInfo.rss, err);
         }
