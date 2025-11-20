@@ -7,7 +7,8 @@ export default function HeaderTagline() {
     "Clean. Quiet. News.",
     "Nine stories. Nine o'clock.",
     "The day in one scroll.",
-    "Your daily news snapshot at 9am"
+    "Your daily news snapshot at 9am.",
+    "News that doesn’t eat your data."
   ];
 
   const randomTagline = taglines[Math.floor(Math.random() * taglines.length)];

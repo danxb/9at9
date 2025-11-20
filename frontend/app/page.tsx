@@ -1,5 +1,7 @@
 import Tagline from './components/Tagline';
 
+import { Articles } from "./components/Articles";
+
 export default function Page() {
   return (
     <>
@@ -7,7 +9,7 @@ export default function Page() {
       <nav className="navbar navbar-light bg-light text-dark">
         <div className="container">
           <div className="d-flex flex-column">
-            <a className="navbar-brand mb-0" href="#">&gt; 9at9.news</a>
+            <a className="navbar-brand mb-0" href="#">9at9.news</a>
             <small className="text-secondary" style={{ marginTop: "-4px" }}>
               <Tagline />
             </small>
@@ -23,6 +25,7 @@ export default function Page() {
       {/* Main Content */}
       <main className="main-container container mt-4">
         <div>
+            <Articles />
         </div>
       </main>
     </>
