@@ -11,6 +11,78 @@ interface Article {
   url: string;
 }
 
+function formatCategory(item: Article): string {
+  if (item.category !== "Sport") {
+    return item.category; // only change if Sport
+  }
+
+  let specific: string = "";
+
+  try {
+    const urlPath = new URL(item.url).pathname; // "/darts/news/..."
+    const parts = urlPath.split("/").filter(Boolean); // ["darts", "news", ...]
+    
+    if (parts.length > 0) {
+      specific = parts[0]; // e.g., "darts" or "nba" or "rugby-union"
+    }
+  } catch {
+    return item.category;
+  }
+
+  // Replace dashes with spaces
+  specific = specific.replace(/-/g, " ");
+
+  // Capitalize properly, handle exceptions
+  const exceptions: Record<string, string> = {
+    nba: "NBA",
+    nfl: "NFL",
+    nhl: "NHL",
+    mlb: "MLB",
+    "rugby union": "Rugby Union",
+  };
+
+  const lower = specific.toLowerCase();
+  specific = exceptions[lower] ?? specific.charAt(0).toUpperCase() + specific.slice(1);
+
+  return `${item.category} / ${specific}`;
+}
+
+function formatSource(item: Article): string {
+  if (item.source !== "Sky Sports") {
+    return `${item.source} ${item.category}`; // only change if Sport
+  }
+
+  let specific: string = "";
+
+  try {
+    const urlPath = new URL(item.url).pathname; // "/darts/news/..."
+    const parts = urlPath.split("/").filter(Boolean); // ["darts", "news", ...]
+    
+    if (parts.length > 0) {
+      specific = parts[0]; // e.g., "darts" or "nba" or "rugby-union"
+    }
+  } catch {
+    return item.category;
+  }
+
+  // Replace dashes with spaces
+  specific = specific.replace(/-/g, " ");
+
+  // Capitalize properly, handle exceptions
+  const exceptions: Record<string, string> = {
+    nba: "NBA",
+    nfl: "NFL",
+    nhl: "NHL",
+    mlb: "MLB",
+    "rugby union": "Rugby Union",
+  };
+
+  const lower = specific.toLowerCase();
+  specific = exceptions[lower] ?? specific.charAt(0).toUpperCase() + specific.slice(1);
+
+  return `${item.source}  (${specific})`;
+}
+
 export const Articles: React.FC = () => {
   const gridRef = useRef<HTMLDivElement | null>(null);
   const masonryRef = useRef<any>(null);
@@ -79,6 +151,13 @@ export const Articles: React.FC = () => {
               aria-label="Close article"
             />
 
+            <div 
+              className="category"
+              style={{ fontSize: "0.8rem", marginBottom: "5px", marginTop: "-10px" }}
+            >
+              {formatCategory(item)}
+            </div>
+
             <h4 style={{ margin: "0 0 6px" }}>{item.title}</h4>
 
             <p style={{ margin: "0 0 10px", whiteSpace: "pre-line" }} className="dropcap">
@@ -86,9 +165,17 @@ export const Articles: React.FC = () => {
             </p>
 
             <div
-              style={{ fontSize: "0.85rem", color: "#666", marginBottom: "6px", marginTop: "20px" }}
+              className="source"
+              style={{ color: "#666", marginBottom: "6px", marginTop: "20px" }}
             >
-              Source: {item.source}
+                <div className="row align-items-end">
+                    <div className="col-6">
+                         {formatSource(item)}
+                    </div>
+                    <div className="col-6 text-end">
+                        <a href={item.url} target="_blank" rel="noopener noreferrer">Read source article ↗</a>
+                    </div>
+                </div>
             </div>
           </div>
         </div>

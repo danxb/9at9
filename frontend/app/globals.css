@@ -62,11 +62,13 @@ p {
 }
 
 .dropcap::first-letter {
-  font-size: 3em;      /* make it big */
-  font-weight: bold;   /* bold it */
+  font-size: 3.5em;      /* make it big */
+  font-weight: 400;   /* bold it */
   float: left;         /* make it sit to the left of the text */
   line-height: 1;      /* adjust spacing */
-  margin-right: 0.1em; /* small gap between letter and text */
+  margin-right: 2px; /* small gap between letter and text */
+  margin-top: -5px;
+  margin-bottom: -5px;
 }
 
 .logo {
@@ -85,4 +87,18 @@ p {
 
 .btn-close {
   opacity: 10%;
+}
+
+.category {
+  font-family: sans-serif !important; 
+  color: #aaa !important;
+  display: none;
+}
+
+.source {
+  font-family: sans-serif !important; 
+  font-size: 0.75em !important;
+}
+.source a:hover {
+  text-decoration: underline;
 }
