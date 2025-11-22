@@ -50,8 +50,11 @@ a {
 }
 
 h4 {
-  font-size:1.1em;
+  font-size: 1.2em;
   font-weight: 600;
+  font-family: sans-serif;
+  margin-bottom: 15px !important;
+  padding-right:5px;
 }
 
 p {
@@ -64,4 +67,22 @@ p {
   float: left;         /* make it sit to the left of the text */
   line-height: 1;      /* adjust spacing */
   margin-right: 0.1em; /* small gap between letter and text */
+}
+
+.logo {
+  background-image: url("/9at9.svg");
+  background-position: left center;
+  background-repeat: no-repeat;
+  background-size: 50px 50px;
+  padding-left: 60px;
+  padding-top: 10px;
+}
+
+.last-updated {
+  font-size: 0.9em;
+  padding-top: 20px;
+}
+
+.btn-close {
+  opacity: 10%;
 }
