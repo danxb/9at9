@@ -79,8 +79,11 @@ const compareToNineAM = (lastUpdatedDate: Date): "before" | "exact" | "after" =>
   const nineAM = new Date(lastUpdatedDate); // start with same day
   nineAM.setHours(9, 0, 0, 0); // 09:00:00.000
 
-  if (lastUpdatedDate.getTime() < nineAM.getTime()) return "before";
-  if (lastUpdatedDate.getTime() === nineAM.getTime()) return "exact";
+  const truncated = new Date(lastUpdatedDate);
+  truncated.setSeconds(0, 0);
+
+  if (truncated.getTime() < nineAM.getTime()) return "before";
+  if (truncated.getTime() === nineAM.getTime()) return "exact";
   return "after";
 };
 
