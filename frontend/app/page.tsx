@@ -1,5 +1,5 @@
 import Logo from './components/Logo';
-import LastUpdated from './components/LastUpdated';
+import { LastUpdated } from './components/LastUpdated';
 
 import { Articles } from "./components/Articles";
 
