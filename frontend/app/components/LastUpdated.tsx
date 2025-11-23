@@ -36,7 +36,7 @@ export const LastUpdated: React.FC = () => {
   // Track previous loading state
   const prevLoadingRef = useRef(loading);
 
-  const [tagline, setTagline] = useState("Time is a social construct.");
+  const [tagline, setTagline] = useState("");
 
   useEffect(() => {
     fetchStatus();
