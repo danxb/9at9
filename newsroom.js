@@ -13,6 +13,24 @@ function cleanCDATA(str) {
     return str.replace(/^<!\[CDATA\[/, "").replace(/\]\]>$/, "").trim();
 }
 
+async function startBatch(db) {
+    await db.execute(`
+        UPDATE daily_load
+        SET current_batch = NOW(),
+            in_progress = 1
+        WHERE id = 1
+    `);
+}
+
+async function finishBatch(db) {
+    await db.execute(`
+        UPDATE daily_load
+        SET last_updated = NOW(),
+            in_progress = 0
+        WHERE id = 1
+    `);
+}
+
 // --- Check if article URL already exists ---
 async function articleExists(db, url) {
     const [rows] = await db.execute(
@@ -23,8 +41,7 @@ async function articleExists(db, url) {
 }
 
 // --- Summarise article using OpenAI ---
-async function summarizeArticle(article) {
-    const browser = await puppeteer.launch({ headless: true });
+async function summarizeArticle(article, browser) {
     const page = await browser.newPage();
 
     await page.goto(article.link, { waitUntil: "load" });
@@ -75,6 +92,9 @@ ${articleText}
 
 // --- MAIN RUN ---
 async function run() {
+    
+    const browser = await puppeteer.launch({ headless: true });
+
     const feeds = [
         { source: "BBC", category: "News", rss: "https://feeds.bbci.co.uk/news/rss.xml" },
         { source: "Sky Sports", category: "Sport", rss: "https://www.skysports.com/rss/12040", filterLive: true },
@@ -88,6 +108,10 @@ async function run() {
         password: process.env.DB_PASS,
         database: process.env.DB_NAME
     });
+
+    
+    await startBatch(db);
+    console.log("Starting batch");
 
     for (const feedInfo of feeds) {
         try {
@@ -122,7 +146,7 @@ async function run() {
                 }
 
                 // Summarise
-                const result = await summarizeArticle(article);
+                const result = await summarizeArticle(article, browser);
                 if (!result) continue;
 
                 console.log(`[${feedInfo.category}] URL:`, article.link);
@@ -148,6 +172,12 @@ async function run() {
             console.error("Error fetching feed:", feedInfo.rss, err);
         }
     }
+
+    await browser.close();
+    await browser.process()?.kill("SIGKILL");
+
+    await finishBatch(db);
+    console.log("Batch completed.");
 
     await db.end();
 }
