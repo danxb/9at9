@@ -14,9 +14,14 @@ export async function GET() {
   try {
     connection = await mysql.createConnection(dbConfig);
 
-    const [rows] = await connection.execute(
-      "SELECT id, source, category, headline as title, summary, url FROM articles ORDER BY id DESC"
-    );
+    const [rows] = await connection.execute(`
+      SELECT a.id, a.source, a.category, a.headline AS title, a.summary, a.url
+      FROM articles a
+      JOIN daily_load d
+        ON DATE(a.published) = DATE(d.last_updated)
+      WHERE d.last_updated = (SELECT MAX(last_updated) FROM daily_load)
+      ORDER BY a.id
+    `);
 
     return NextResponse.json(rows);
   } catch (err) {
