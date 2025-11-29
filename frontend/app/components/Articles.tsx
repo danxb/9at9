@@ -132,7 +132,13 @@ export const Articles: React.FC = () => {
 
   return (
     <div ref={gridRef} className="row">
-      {tiles.map((item, i) => (
+      {tiles.length === 0
+        ? Array.from({ length: 6 }).map((_, i) => (
+            <div className="col-12 col-sm-6 col-md-4 mb-4 grid-item" key={i}>
+              <div className="well" style={{ minHeight: "180px" }} />
+            </div>
+          ))
+        : tiles.map((item, i) => (
         <div className="col-12 col-sm-6 col-md-4 mb-4 grid-item" key={i}>
           <div
             className="well"

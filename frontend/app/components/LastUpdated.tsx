@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState } from "react";
 import { getTagline, formatLastUpdated } from "../helpers/lastUpdatedHelpers";
 
 interface DailyLoadStatus {
@@ -9,16 +9,11 @@ interface DailyLoadStatus {
 }
 
 export const LastUpdated: React.FC = () => {
-  const [loading, setLoading] = useState<boolean>(true);
+  // Tracks if the database is currently updating
+  const [isDbUpdating, setIsDbUpdating] = useState(false);
+  // Stores the last successful update timestampx
   const [lastUpdated, setLastUpdated] = useState<string>("");
-
-  const formattedTime = lastUpdated
-    ? new Date(lastUpdated).toLocaleTimeString([], {
-        hour: "2-digit",
-        minute: "2-digit",
-        hour12: false,
-      })
-    : "";
+  const [tagline, setTagline] = useState("");
 
   const fetchStatus = async () => {
     try {
@@ -26,33 +21,34 @@ export const LastUpdated: React.FC = () => {
       if (!res.ok) throw new Error("Failed to fetch daily load status");
       const data: DailyLoadStatus = await res.json();
 
-      setLoading(data.in_progress === 1);
-      if (data.in_progress === 0) setLastUpdated(data.last_updated);
+      // Always update the last updated timestamp
+      setLastUpdated(data.last_updated);
+      // Update only if the database is in progress
+      setIsDbUpdating(data.in_progress === 1);
     } catch (err) {
       console.error(err);
     }
   };
 
-  // Track previous loading state
-  const prevLoadingRef = useRef(loading);
-
-  const [tagline, setTagline] = useState("");
-
+  // Initial fetch + polling every 15s
   useEffect(() => {
     fetchStatus();
-    const intervalId = setInterval(fetchStatus, 15000); // poll every 15s
+    const intervalId = setInterval(fetchStatus, 15000);
     return () => clearInterval(intervalId);
   }, []);
 
+  // Update tagline whenever the DB update status or lastUpdated changes
   useEffect(() => {
-  const newTagline = getTagline(loading, lastUpdated, tagline); // pass current tagline
-  setTagline(newTagline);
-}, [loading, lastUpdated]);
+    const newTagline = getTagline(isDbUpdating, lastUpdated, tagline);
+    setTagline(newTagline);
+  }, [isDbUpdating, lastUpdated]);
 
   return (
     <div className="last-updated">
-      {loading ? "Updating..." : lastUpdated && formatLastUpdated(new Date(lastUpdated))}
-      <br />
+      <span className="updating">{isDbUpdating
+        ? "Updating..."
+        : lastUpdated && formatLastUpdated(new Date(lastUpdated))}
+      </span>
       <small className="text-secondary">
         <p className="text-sm text-gray-500 italic">{tagline}</p>
       </small>

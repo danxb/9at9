@@ -66,7 +66,7 @@ export const getTagline = (loading: boolean, lastUpdated: string, prevTagline: s
     }
   }
 
-  return "Time is a social construct.";
+  return "";
 };
 
 const compareToNineAM = (lastUpdatedDate: Date): "before" | "exact" | "after" => {
@@ -106,5 +106,5 @@ export function formatLastUpdated(date: Date): string {
 
   if (date.toDateString() === now.toDateString()) return `Updated: ${time}`;
   if (isYesterday(date)) return `Updated: Yesterday ${time}`;
-  return `Updated: ${date.toLocaleDateString()} ${time}`;
+  return `Updated: ${date.toLocaleDateString('en-GB')} ${time}`;
 }

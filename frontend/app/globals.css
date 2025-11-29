@@ -72,17 +72,23 @@ p {
 }
 
 .logo {
-  background-image: url("/9at9.svg");
-  background-position: left center;
-  background-repeat: no-repeat;
-  background-size: 50px 50px;
-  padding-left: 60px;
-  padding-top: 10px;
+  padding-top: 9px;
+  clear: both;
+  border:1px solid #fff;
+  position: relative;
 }
-
-.last-updated {
-  font-size: 0.9em;
-  padding-top: 20px;
+.logo img {
+  margin-right: 10px;
+  margin-top: 10px;
+}
+.logo .name-and-tagline {
+  border-left:1px solid #ccc;
+  left: 60px;
+  top: 10px;
+  padding-left: 10px;
+  position: absolute;
+  padding-top: 9px;
+  width: 300px;
 }
 
 .btn-close {
@@ -100,4 +106,35 @@ p {
 }
 .source a:hover {
   text-decoration: underline;
+}
+
+body {
+  overflow-y: scroll;
+}
+
+.updating, 
+.last-updated small, 
+.last-updated p {
+  display: block;
+}
+
+.last-updated {
+  font-size: 0.9em;
+  padding-top: 30px;
+}
+
+@media (max-width: 768px) {
+  .updating, 
+  .last-updated small, 
+  .last-updated p {
+    display: inline;
+  }
+  .last-updated p {
+    margin-left:10px;
+  }
+  .last-updated {
+    margin-top: -7px !important;
+    margin-bottom: -12px !important;
+    padding-top: 20px;
+  }
 }

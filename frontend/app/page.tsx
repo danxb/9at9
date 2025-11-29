@@ -7,13 +7,13 @@ export default function Page() {
   return (
     <>
       {/* Navbar */}
-      <nav className="navbar navbar-light bg-light text-dark mt-1">
-        <div className="container">
-          <div className="d-flex flex-column">
-              <Logo />
+      <nav className="navbar navbar-light bg-light text-dark mt-1 mb-3">
+        <div className="container d-flex flex-column flex-md-row align-items-start">
+          <div>
+            <Logo />
           </div>
-          <div className="d-flex ms-auto">
-              <LastUpdated />
+          <div className="ms-md-auto mt-2 mt-md-0">
+            <LastUpdated />
           </div>
         </div>
       </nav>

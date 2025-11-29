@@ -13,6 +13,7 @@ function cleanCDATA(str) {
     return str.replace(/^<!\[CDATA\[/, "").replace(/\]\]>$/, "").trim();
 }
 
+// --- Start/finish batch ---
 async function startBatch(db) {
     await db.execute(`
         UPDATE daily_load
@@ -44,26 +45,25 @@ async function articleExists(db, url) {
 async function summarizeArticle(article, browser) {
     const page = await browser.newPage();
 
-    await page.goto(article.link, { waitUntil: "load" });
+    try {
+        await page.goto(article.link, { waitUntil: "load" });
 
-    const articleText = await page.evaluate(() => {
-        const container = document.querySelector(".article, .sdc-article-body, #main-content");
-        if (!container) return "";
-        return Array.from(container.querySelectorAll("p"))
-            .map(el => el.innerText)
-            .join("\n");
-    });
+        const articleText = await page.evaluate(() => {
+            const container = document.querySelector(".article, .sdc-article-body, #main-content");
+            if (!container) return "";
+            return Array.from(container.querySelectorAll("p"))
+                .map(el => el.innerText)
+                .join("\n");
+        });
 
-    await browser.close();
+        if (!articleText.trim()) return null;
 
-    if (!articleText.trim()) return null;
-
-    const completion = await openai.chat.completions.create({
-        model: "gpt-4.1",
-        messages: [
-            {
-                role: "user",
-                content: `
+        const completion = await openai.chat.completions.create({
+            model: "gpt-4.1",
+            messages: [
+                {
+                    role: "user",
+                    content: `
 Return ONLY valid JSON:
 
 {
@@ -74,25 +74,28 @@ Return ONLY valid JSON:
 Text to summarise:
 ${articleText}
 `
-            }
-        ]
-    });
+                }
+            ]
+        });
 
-    let content = completion.choices[0].message.content;
-    content = content.replace(/```json\s*|```/g, "").trim();
+        let content = completion.choices[0].message.content;
+        content = content.replace(/```json\s*|```/g, "").trim();
 
-    try {
-        const data = JSON.parse(content);
-        return { headline: data.headline, summary: data.summary };
-    } catch (err) {
-        console.error("GPT returned invalid JSON:", content);
-        return null;
+        try {
+            const data = JSON.parse(content);
+            return { headline: data.headline, summary: data.summary };
+        } catch (err) {
+            console.error("GPT returned invalid JSON:", content);
+            return null;
+        }
+
+    } finally {
+        await page.close(); // close the page only
     }
 }
 
 // --- MAIN RUN ---
 async function run() {
-    
     const browser = await puppeteer.launch({ headless: true });
 
     const feeds = [
@@ -109,7 +112,6 @@ async function run() {
         database: process.env.DB_NAME
     });
 
-    
     await startBatch(db);
     console.log("Starting batch");
 
@@ -132,20 +134,18 @@ async function run() {
                 articles = articles.filter(item => !/watch/i.test(item.link));
             }
 
-            // --- Pull a few extra to avoid duplicates (6 instead of 3) ---
+            // Pull a few extra to avoid duplicates (6 instead of 3)
             const candidateArticles = articles.slice(0, 6);
 
             let added = 0;
             for (const article of candidateArticles) {
                 if (added >= 3) break;
 
-                // Skip duplicates BEFORE OpenAI call (saves £££)
                 if (await articleExists(db, article.link)) {
                     console.log("Already exists, skipping:", article.link);
                     continue;
                 }
 
-                // Summarise
                 const result = await summarizeArticle(article, browser);
                 if (!result) continue;
 
@@ -173,9 +173,7 @@ async function run() {
         }
     }
 
-    await browser.close();
-    await browser.process()?.kill("SIGKILL");
-
+    await browser.close(); // close browser at the very end
     await finishBatch(db);
     console.log("Batch completed.");
 
