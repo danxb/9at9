@@ -2,7 +2,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import './globals.css';
 
 export const metadata = {
-  title: "at9.news",
+  title: "9x9.news",
   description: "Daily news snapshot",
 };
 
