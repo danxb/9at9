@@ -1,3 +1,5 @@
+"use client";
+
 export default function HeaderTagline() {
   const taglines = [
     "News Without the Noise.",

@@ -55,10 +55,12 @@ h4 {
   font-family: sans-serif;
   margin-bottom: 15px !important;
   padding-right:5px;
+  color:#171717;
 }
 
 p {
   font-size: 0.9em;
+  color:#171717;
 }
 
 .dropcap::first-letter {
