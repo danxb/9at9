@@ -103,7 +103,8 @@ async function run() {
             '--disable-setuid-sandbox',
             '--disable-dev-shm-usage',
             '--disable-gpu'
-        ]
+        ],
+        dumpio: true
     });
 
     const feeds = [
