@@ -99,7 +99,7 @@ async function run() {
     const browser = await puppeteer.launch({
         headless: true,
         args: ['--no-sandbox', '--disable-setuid-sandbox'],
-        executablePath: '/home/dano/.cache/puppeteer/chrome/linux-143.0.7499.40/chrome'
+        executablePath: '/home/dano/.cache/puppeteer/chrome/linux-143.0.7499.40/chrome-linux64/chrome'
     });
 
     const feeds = [
