@@ -98,7 +98,6 @@ ${articleText}
 async function run() {
     const browser = await puppeteer.launch({
   headless: true,
-  executablePath: '/home/dano/.cache/puppeteer/chrome-linux/chrome',
   args: ['--no-sandbox', '--disable-setuid-sandbox']
 });
 
