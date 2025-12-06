@@ -104,7 +104,8 @@ async function run() {
             '--disable-dev-shm-usage',
             '--disable-gpu'
         ],
-        dumpio: true
+        dumpio: true,
+        executablePath: '/usr/bin/chromium-browser'
     });
 
     const feeds = [
