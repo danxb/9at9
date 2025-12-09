@@ -102,7 +102,8 @@ async function run() {
             '--no-sandbox',
             '--disable-setuid-sandbox',
             '--disable-dev-shm-usage',
-            '--disable-gpu'
+            '--disable-gpu',
+            '--no-zygote'
         ],
         dumpio: true,
         executablePath: '/usr/bin/chromium-browser'
