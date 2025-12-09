@@ -101,8 +101,9 @@ async function run() {
         args: [
             '--no-sandbox',
             '--disable-setuid-sandbox',
+            '--disable-gpu',
             '--disable-dev-shm-usage',
-            '--disable-gpu'
+            '--disable-features=UseOzonePlatform'
         ],
         dumpio: true,
         executablePath: '/usr/bin/chromium-browser'
