@@ -105,8 +105,7 @@ async function run() {
             '--disable-dev-shm-usage',
             '--disable-features=UseOzonePlatform'
         ],
-        dumpio: true,
-        executablePath: '/snap/bin/chromium'
+        dumpio: true
     });
 
     const feeds = [
