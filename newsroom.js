@@ -106,7 +106,7 @@ async function run() {
             '--disable-features=UseOzonePlatform'
         ],
         dumpio: true,
-        executablePath: '/usr/bin/chromium-browser'
+        executablePath: '/snap/bin/chromium'
     });
 
     const feeds = [
