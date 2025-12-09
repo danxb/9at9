@@ -97,7 +97,7 @@ ${articleText}
 // --- MAIN RUN ---
 async function run() {
     const browser = await puppeteer.launch({
-        headless: true,
+        headless: 'new',
         args: [
             '--no-sandbox',
             '--disable-setuid-sandbox',
