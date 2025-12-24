@@ -63,6 +63,11 @@ p {
   color:#171717;
 }
 
+ul {
+  font-size: 0.95em;
+  color:#171717;
+}
+
 .dropcap::first-letter {
   font-size: 3.5em;      /* make it big */
   font-weight: 400;   /* bold it */

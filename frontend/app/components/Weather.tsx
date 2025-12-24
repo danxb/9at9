@@ -6,12 +6,13 @@ export interface Forecast {
 }
 
 const headings = [
-  "Degrees of Separation Are We Warm Yet?",
+  "Degrees of Separation",
+  "Are We Warm Yet?",
   "Europe at a Glance",
-  "The Morning Weather Table",
+  "The Weather Table",
   "Temperature Readings - Europe",
   "Europe Temps",
-  "9 Capitals x 9am",
+  "9 Capitals Forecast",
   "Today's Temperatures Across Europe"
 ];
 
