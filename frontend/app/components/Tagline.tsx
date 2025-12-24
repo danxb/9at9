@@ -1,5 +1,7 @@
 "use client";
 
+import { useEffect, useState } from "react";
+
 export default function HeaderTagline() {
   const taglines = [
     "News Without the Noise.",
@@ -13,7 +15,15 @@ export default function HeaderTagline() {
     "News that doesn’t eat your data."
   ];
 
-  const randomTagline = taglines[Math.floor(Math.random() * taglines.length)];
+  const [tagline, setTagline] = useState<string | null>(null);
 
-  return <p className="text-sm text-gray-500 italic">{randomTagline}</p>;
+  useEffect(() => {
+    const random =
+      taglines[Math.floor(Math.random() * taglines.length)];
+    setTagline(random);
+  }, []);
+
+  if (!tagline) return null; // or placeholder
+
+  return <p className="text-sm text-gray-500 italic">{tagline}</p>;
 }
