@@ -45,9 +45,9 @@ export const Weather = {
     return (
       <>
         <h4>{ heading }</h4>
-        <ul className="list-unstyled row">
+        <ul className="list-unstyled weather-cols">
           {cities.map((item, index) => (
-            <li key={index} className="col-6">
+            <li key={index}>
               {item.city}: {item.temp}°C
             </li>
           ))}

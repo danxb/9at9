@@ -63,9 +63,11 @@ p {
   color:#171717;
 }
 
-ul {
+.weather-cols {
   font-size: 0.95em;
   color:#171717;
+  column-count: 2;
+  column-gap: 1.5rem;
 }
 
 .dropcap::first-letter {
