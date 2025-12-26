@@ -44,7 +44,7 @@ export const Weather = {
 
     return (
       <>
-        <h4>{ heading }</h4>
+        <h4>9 Capitals Forecast</h4>
         <ul className="list-unstyled weather-cols">
           {cities.map((item, index) => (
             <li key={index}>

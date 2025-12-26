@@ -3,10 +3,13 @@
 import React, { useState, useEffect, useRef } from "react";
 import News, { Article as NewsArticle } from "./News";
 import Weather, { Forecast as WeatherTile } from "./Weather";
+import Films, { TvGuide as FilmTile } from "./Films";
 
 type TileType = 
   | (NewsArticle & { type: "news" }) 
-  | (WeatherTile & { type: "weather" }); // | TVTile
+  | (WeatherTile & { type: "weather" })
+  | (FilmTile & { type: "films" })
+; 
 
 export const Articles: React.FC = () => {
   const gridRef = useRef<HTMLDivElement | null>(null);
@@ -18,9 +21,9 @@ export const Articles: React.FC = () => {
     async function fetchTiles() {
       const newsTiles = await News.getTiles();
       const weatherTiles = await Weather.getTiles();
-      // const tvTiles = await TV.getTiles();
+      const filmTiles = await Films.getTiles();
 
-      setTiles([...newsTiles, ...weatherTiles] as TileType[]); // add tvTiles later
+      setTiles([...newsTiles, ...weatherTiles, ...filmTiles] as TileType[]); // add tvTiles later
     }
     fetchTiles();
   }, []);
@@ -63,6 +66,8 @@ export const Articles: React.FC = () => {
         return <News.TileContent data={tile as NewsArticle} />;
       case "weather":
         return <Weather.TileContent data={tile as WeatherTile} />;
+      case "films":
+        return <Films.TileContent data={tile as FilmTile} />;
       default:
         return null;
     }

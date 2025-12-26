@@ -1,5 +1,5 @@
-require("dotenv").config();
-const mysql = require("mysql2/promise");
+import "dotenv/config";
+import mysql from "mysql2/promise";
 
 const cities = [
   { city: "London", latitude: 51.5074, longitude: -0.1278 },

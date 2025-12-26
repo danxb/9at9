@@ -147,3 +147,18 @@ body {
     padding-top: 20px;
   }
 }
+
+.films h5 {
+  font-size: 1.1em;
+  margin-top: 15px;
+}
+.films p {
+  margin-bottom: 5px;
+}
+.films .footer {
+  font-size: 0.75em !important;
+  color: #667;
+}
+.films > div:last-child .footer {
+  margin-bottom: 0 !important;
+}

@@ -1,11 +1,14 @@
-require("dotenv").config();
-const RSSParser = require("rss-parser");
-const puppeteer = require("puppeteer");
-const { OpenAI } = require("openai");
-const mysql = require("mysql2/promise");
+import "dotenv/config";
+import RSSParser from "rss-parser";
+import puppeteer from "puppeteer";
+import OpenAI from "openai";
+import mysql from "mysql2/promise";
 
 const parser = new RSSParser();
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY
+});
 
 // --- Clean CDATA ---
 function cleanCDATA(str) {
