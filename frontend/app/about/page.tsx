@@ -190,10 +190,9 @@ export default function Page() {
                   onClick={handleClose}
                   aria-label="Close article"
                 />
-                {/* 9x9.news is a free text-only news aggregation service.  */}
               <div className="card-body">
                 <h4 className="text-white" style={{ margin: "0 0 6px" }}>About 9x9.news</h4>
-                <p className="text-white">Find out more about 9x9.news here. This page is written without the use of AI.</p>
+                <p className="text-white">9x9.news is a free, text-only news site that delivers the day's key stories in short, distraction-free summaries.</p>
               </div>
             </div>
           </div>
