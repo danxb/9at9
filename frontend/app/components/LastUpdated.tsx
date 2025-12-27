@@ -50,7 +50,9 @@ export const LastUpdated: React.FC = () => {
         : lastUpdated && formatLastUpdated(new Date(lastUpdated))}
       </span>
       <small className="text-secondary">
-        <p className="text-sm text-gray-500 italic">{tagline}</p>
+        <p className="text-sm text-gray-500 italic">
+          {tagline}
+        </p>
       </small>
     </div>
   );

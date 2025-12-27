@@ -59,7 +59,8 @@ export const getTagline = (loading: boolean, lastUpdated: string, prevTagline: s
             return earlyPhrases[Math.floor(Math.random() * earlyPhrases.length)];
 
         case "exact":
-            return onTimePhrases[Math.floor(Math.random() * onTimePhrases.length)];
+            return "";
+            //return onTimePhrases[Math.floor(Math.random() * onTimePhrases.length)];
 
         case "after":
             return lateExcuses[Math.floor(Math.random() * lateExcuses.length)];

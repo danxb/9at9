@@ -6,13 +6,12 @@ export default function HeaderTagline() {
   const taglines = [
     "News Without the Noise.",
     "Text-only news. Read it anywhere.",
-    "No ads. No popups. No pictures. Just news.",
-    "The least suspicious way to read the news at work.",
-    "Clean. Quiet. News.",
+    "No ads. No popups. No pictures.",
+    "Text-only. Safe for work.",
     "Nine stories. Nine o'clock.",
     "The day in one scroll.",
     "Your daily news snapshot at 9am.",
-    "News that doesn’t eat your data."
+    "News that doesn't use all your data."
   ];
 
   const [tagline, setTagline] = useState<string | null>(null);

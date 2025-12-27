@@ -163,3 +163,10 @@ body {
 .films > div:last-child .footer {
   margin-bottom: 0 !important;
 }
+.about ul {
+  font-size: 0.9em;
+  color:#171717;
+}
+.about-card .btn-close {
+  color:#ccc !important;
+}

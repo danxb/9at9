@@ -12,6 +12,22 @@ const OMDB_API_KEY = "c9fde3c2";
 // Channels you explicitly do NOT want
 const EXCLUDE_CHANNELS = new Set(["Film4 HD"]);
 
+function getDurationMinutes(start, stop) {
+  const parse = s =>
+    new Date(
+      Date.UTC(
+        s.slice(0, 4),
+        s.slice(4, 6) - 1,
+        s.slice(6, 8),
+        s.slice(8, 10),
+        s.slice(10, 12),
+        s.slice(12, 14)
+      )
+    );
+
+  return (parse(stop) - parse(start)) / 60000;
+}
+
 function getTodayNinePM() {
   const now = new Date();
   const yyyy = now.getUTCFullYear();
@@ -91,6 +107,9 @@ async function getImdbRating(title, year) {
   for (const p of programmes) {
     if (p.$.start !== targetStart) continue;
 
+    const duration = getDurationMinutes(p.$.start, p.$.stop);
+    if (duration < 90) continue;
+
     const channelName = channelMap[p.$.channel] || p.$.channel;
     if (EXCLUDE_CHANNELS.has(channelName)) continue;
 
@@ -113,7 +132,7 @@ async function getImdbRating(title, year) {
     const imdbRating = await getImdbRating(title, year);
 
     // Quality filter – only decent films
-    if (imdbRating < 5.9) continue;
+    if (imdbRating <= 5.9) continue;
 
     films.push({
       channel: channelName,
