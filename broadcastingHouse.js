@@ -64,7 +64,7 @@ function normalizeTitleAndDesc(title, desc) {
 
 // Fetch IMDb rating (falls back to 6.0)
 async function getImdbRating(title, year) {
-  if (!OMDB_API_KEY || !year) return 6.0;
+  if (!OMDB_API_KEY || !year) return 5.0;
 
   try {
     const url = `http://www.omdbapi.com/?t=${encodeURIComponent(
@@ -80,7 +80,7 @@ async function getImdbRating(title, year) {
     console.error("OMDb error:", err);
   }
 
-  return 6.0;
+  return 5.0;
 }
 
 (async () => {
