@@ -107,8 +107,7 @@ async function run() {
             '--disable-gpu',
             '--disable-dev-shm-usage',
             '--disable-features=UseOzonePlatform'
-        ],
-        dumpio: true
+        ]
     });
 
     const feeds = [
