@@ -54,13 +54,14 @@ export const getTagline = (loading: boolean, lastUpdated: string, prevTagline: s
         return "Ready! Refresh for today's stories.";
     }
 
+    return "";
+
     switch (compareToNineAM(lastUpdatedDate)) {
         case "before":
             return earlyPhrases[Math.floor(Math.random() * earlyPhrases.length)];
 
         case "exact":
-            return "";
-            //return onTimePhrases[Math.floor(Math.random() * onTimePhrases.length)];
+            return onTimePhrases[Math.floor(Math.random() * onTimePhrases.length)];
 
         case "after":
             return lateExcuses[Math.floor(Math.random() * lateExcuses.length)];
@@ -108,4 +109,20 @@ export function formatLastUpdated(date: Date): string {
   if (date.toDateString() === now.toDateString()) return `Updated: ${time}`;
   if (isYesterday(date)) return `Updated: Yesterday ${time}`;
   return `Updated: ${date.toLocaleDateString('en-GB')} ${time}`;
+}
+
+export function formatNewspaperDate(): string {
+  const d = new Date();
+
+  const dayName = d.toLocaleDateString('en-GB', { weekday: 'long' });
+  const monthName = d.toLocaleDateString('en-GB', { month: 'long' });
+  const day = d.getDate();
+  const year = d.getFullYear();
+
+  const suffix =
+    day % 10 === 1 && day !== 11 ? 'st' :
+    day % 10 === 2 && day !== 12 ? 'nd' :
+    day % 10 === 3 && day !== 13 ? 'rd' : 'th';
+
+  return `${dayName} ${day}${suffix} ${monthName} ${year}`;
 }

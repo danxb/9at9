@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { getTagline, formatLastUpdated } from "../helpers/lastUpdatedHelpers";
+import { getTagline, formatLastUpdated, formatNewspaperDate } from "../helpers/lastUpdatedHelpers";
 
 interface DailyLoadStatus {
   in_progress: 0 | 1;
@@ -51,7 +51,8 @@ export const LastUpdated: React.FC = () => {
       </span>
       <small className="text-secondary">
         <p className="text-sm text-gray-500 italic">
-          {tagline}
+          {tagline && <>{tagline}<br /></>}
+          {formatNewspaperDate()}
         </p>
       </small>
     </div>
