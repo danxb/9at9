@@ -4,17 +4,20 @@ import React, { useState, useEffect, useRef } from "react";
 import News, { Article as NewsArticle } from "./News";
 import Weather, { Forecast as WeatherTile } from "./Weather";
 import Films, { TvGuide as FilmTile } from "./Films";
+import Sponsor, { Summary as SponsorTile } from "./Sponsor";
 
 type TileType = 
   | (NewsArticle & { type: "news" }) 
   | (WeatherTile & { type: "weather" })
   | (FilmTile & { type: "films" })
+  | (SponsorTile & { type: "sponsor" })
 ; 
 
 export const Articles: React.FC = () => {
   const gridRef = useRef<HTMLDivElement | null>(null);
   const masonryRef = useRef<any>(null);
   const [tiles, setTiles] = useState<TileType[]>([]);
+  const [loading, setLoading] = useState(true);
 
   // Fetch all tiles
   useEffect(() => {
@@ -22,8 +25,10 @@ export const Articles: React.FC = () => {
       const newsTiles = await News.getTiles();
       const weatherTiles = await Weather.getTiles();
       const filmTiles = await Films.getTiles();
+      const sponsorTiles = await Sponsor.getTiles();
 
-      setTiles([...newsTiles, ...weatherTiles, ...filmTiles] as TileType[]); // add tvTiles later
+      setTiles([...newsTiles, ...weatherTiles, ...filmTiles, ...sponsorTiles] as TileType[]); 
+      setLoading(false);
     }
     fetchTiles();
   }, []);
@@ -50,13 +55,8 @@ export const Articles: React.FC = () => {
     }
   }, [tiles]);
 
-  const handleClose = (e: React.MouseEvent<HTMLButtonElement>) => {
-    const tile = (e.currentTarget.closest(".grid-item") as HTMLElement) || null;
-    if (!tile || !masonryRef.current) return;
-
-    tile.remove();
-    masonryRef.current.remove(tile);
-    masonryRef.current.layout();
+  const handleClose = (index: number) => {
+    setTiles((prev) => prev.filter((_, i) => i !== index));
   };
 
   // Render content inside .grid-item using the appropriate TileContent function
@@ -68,20 +68,37 @@ export const Articles: React.FC = () => {
         return <Weather.TileContent data={tile as WeatherTile} />;
       case "films":
         return <Films.TileContent data={tile as FilmTile} />;
+      case "sponsor":
+        return <Sponsor.TileContent data={tile as SponsorTile} />;
       default:
         return null;
     }
   };
 
+  let rowStyle: React.CSSProperties = {};
+
+  if (loading || tiles.length === 0) {
+    rowStyle.minHeight = "200px";
+  }
+
   return (
-    <div ref={gridRef} className="row">
-      {tiles.length === 0
-        ? Array.from({ length: 6 }).map((_, i) => (
+    <div ref={gridRef} className="row" style={rowStyle}>
+      {loading ? (
+          // show placeholders while fetching
+          Array.from({ length: 6 }).map((_, i) => (
             <div className="col-12 col-sm-6 col-md-4 mb-4 grid-item" key={i}>
               <div className="well" style={{ minHeight: "180px" }} />
             </div>
           ))
-        : tiles.map((tile, i) => (
+        ) : tiles.length === 0 ? (
+          // show message if user closed all tiles
+          <div className="col-12 text-center py-5">
+            <p>
+              What's black and white and read all over? <strong>9x9.news</strong>.<br /> 
+              Check back tomorrow at 9am for more.
+            </p>
+          </div>
+        ) : tiles.map((tile, i) => (
             <div className="col-12 col-sm-6 col-md-4 mb-4 grid-item" key={i}>
               <div
                 className="well"
@@ -96,7 +113,7 @@ export const Articles: React.FC = () => {
                 <button
                   type="button"
                   className="btn-close position-absolute top-0 end-0 m-2"
-                  onClick={handleClose}
+                  onClick={() => handleClose(i)}
                   aria-label="Close article"
                 />
                 {renderTileContent(tile)}

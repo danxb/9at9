@@ -10,7 +10,7 @@ const EPG_URL =
 const OMDB_API_KEY = "c9fde3c2";
 
 // Channels you explicitly do NOT want
-const EXCLUDE_CHANNELS = new Set(["Film4 HD"]);
+const EXCLUDE_CHANNELS = new Set(["Film4 HD","Film4 ROI"]);
 
 function getDurationMinutes(start, stop) {
   const parse = s =>
@@ -64,7 +64,12 @@ function normalizeTitleAndDesc(title, desc) {
 
 // Fetch IMDb rating (falls back to 6.0)
 async function getImdbRating(title, year) {
-  if (!OMDB_API_KEY || !year) return 5.0;
+  if (!OMDB_API_KEY || !year) {
+    console.log("5 returned");
+    console.log("omdb api key", !!OMDB_API_KEY);
+    console.log("year", year);
+    return 5.0;
+  }
 
   try {
     const url = `http://www.omdbapi.com/?t=${encodeURIComponent(
@@ -76,6 +81,11 @@ async function getImdbRating(title, year) {
     if (data.Response === "True" && data.imdbRating !== "N/A") {
       return Number(data.imdbRating);
     }
+
+    console.log("None returned");
+    console.log("response", data.Response);
+    console.log("rating", data.imdbRating);
+  
   } catch (err) {
     console.error("OMDb error:", err);
   }
@@ -130,6 +140,8 @@ async function getImdbRating(title, year) {
     const year = yearMatch ? yearMatch[1] : null;
 
     const imdbRating = await getImdbRating(title, year);
+
+    console.log("Rating: ", imdbRating, " ");
 
     // Quality filter – only decent films
     if (imdbRating <= 5.9) continue;

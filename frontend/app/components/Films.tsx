@@ -25,20 +25,27 @@ export const Films = {
       <>
         <h4>Films at 9pm Tonight</h4>
         <div className="films">
-          {films.map((item, index) => (
-            <div key={index}>
-              <h5>{item.title}</h5>
-              <p>{item.desc} </p>
-              <div className="footer row align-items-end mb-4">
-                  <div className="col-8">
-                      {item.channel}
-                  </div>
-                  <div className="col-4 text-end">
-                      Rating: {item.imdbRating}
-                  </div>
+          {films.length > 0 ? (
+            films.map((item, index) => (
+              <div key={index}>
+                <h5>{item.title}</h5>
+                <p>{item.desc} </p>
+                <div className="footer row align-items-end mb-4">
+                    <div className="col-8">
+                        {item.channel}
+                    </div>
+                    <div className="col-4 text-end">
+                        Rating: {item.imdbRating}
+                    </div>
+                </div>
               </div>
-            </div>
-          ))}
+            )
+          )) : (
+            <p>
+              <strong>No films worth recommending</strong><br />
+              <em>Check back tomorrow</em>
+            </p>
+        )}
         </div>
       </>
     );

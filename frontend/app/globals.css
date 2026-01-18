@@ -170,3 +170,19 @@ body {
 .about-card .btn-close {
   color:#ccc !important;
 }
+#why {
+  margin-top: 5px;
+}
+#how {
+  margin-bottom:3px;
+}
+
+p a {
+  border-bottom: 1px solid #ccc;
+}
+p a:hover {
+  border-bottom: 1px solid #999;
+}
+p a:active {
+  border-bottom: 1px solid #202020;
+}
